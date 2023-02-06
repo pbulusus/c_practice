@@ -32,13 +32,20 @@ unsigned invert(unsigned x, int p, int n);
 unsigned rightrot(unsigned x, int n);
 unsigned raise(unsigned x, int n);
 unsigned xlcol2num(char s[]);
+// vectors
+float  dot(const float vec1[], const float vec2[], unsigned len);
+float norm(const float vec1[], unsigned len);
+void cross(const float vec1[3], const float vec2[3], float out_vec[3]);
+short check_tolerance(float f);
+void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsigned len, float fac1, float fac2);
+float circumscribed_circle(const float x[3], const float y[3],const float z[3], float ctr[3]);
 // End Declarations
 
 // main
 int main(int argc, char* argv[])
 {
     clock_t start, end;
-    start - clock();
+    start = clock();
     printf("----------------------\n");
     /*
     char a[] = "abc\\**de\\f";
@@ -58,22 +65,34 @@ int main(int argc, char* argv[])
     get_num_in_words(num, num_in_words);
     printf("--%s--", num_in_words);
     */
-   char s1[1000];
-   char s2[1000];
-   unsigned x = 0, y, counter = 0;
-   while (x++ < UINT_MAX)
-   {
-        num2xlcol(x, s1);
-        y = xlcol2num(s1);
-        if (x != y)
-        {
-            ++counter;
-            printf("NOT MATCHING %u : %s : %u", x, s1, y);
-            if (counter == 10)
-                goto end_main;
-        }
-   }
-   printf("All Values are Matching\n");
+//    //
+//    char s1[1000];
+//    char s2[1000];
+//    unsigned x = 0, y, counter = 0;
+//    while (x++ < UINT_MAX)
+//    {
+//         num2xlcol(x, s1);
+//         y = xlcol2num(s1);
+//         if (x != y)
+//         {
+//             ++counter;
+//             printf("NOT MATCHING %u : %s : %u", x, s1, y);
+//             if (counter == 10)
+  //         }
+//    }
+//    printf("All Values are Matching\n");
+//    //.
+    // circumscribed circle code
+    // float x[3] = {-100.2, 200.3, 600.5};
+    // float y[3] = {500.7, -800.9, 500.4};
+    // float z[3] = {700.9, 400.5, -300.4};
+    float x[3] = {1.0, 0.0, 0.0};
+    float y[3] = {0.0, 1.0, 0.0};
+    float z[3] = {-1.0, 0.0, 0.0};
+    float ctr[3], radius;
+    radius = circumscribed_circle(x, y, z, ctr);
+    printf("Radius is : %3.18f at co-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
+    //
    end_main:
         printf("----------------------\n");
         end = clock();
@@ -100,7 +119,7 @@ position p inverted (i.e., 1 changed into 0 and vice versa), leaving the others 
 */
 unsigned invert(unsigned x, int p, int n)
 {
-    unsigned mask = ~(~0 << n) << p + 1 - n;
+    unsigned mask = ~(~0 << n) << (p + 1 - n);
     return (x & ~mask) | (~x & mask);
 }
 ///////////////////////////////////////////////////////////////////////////////////////////
@@ -235,8 +254,9 @@ bool search_str_wld_crds (const char str[], const char sub[])
     int i, j, j_strt, nc, nc_strt;
     i = j_strt = nc_strt = 0;
 
-    while (i + l_eff - (nc = nc_strt) <= l_str)
+    while (i + l_eff - nc_strt <= l_str)
     {
+        nc = nc_strt;
         j = j_strt;
         while (sub[j] != '\0')
         {
@@ -269,7 +289,7 @@ bool search_str_wld_crds (const char str[], const char sub[])
 int add_str(char* str, const char* add, int start_i)
 {
     int add_i;
-    for (add_i = 0; str[start_i] = add[add_i]; ++add_i, ++start_i)
+    for (add_i = 0; (str[start_i] = add[add_i]); ++add_i, ++start_i)
         ;    
     return start_i;
 }
@@ -285,6 +305,7 @@ int add_str(char* str, const char* add, int start_i)
 void get_num_in_words(int num, char* out_string)
 {
     int start_i = 0;
+    unsigned num_u;
     if (num == 0)
     {
         start_i = add_str(out_string, "Zero", start_i);
@@ -293,8 +314,10 @@ void get_num_in_words(int num, char* out_string)
     else if (num < 0)
     {
         start_i = add_str(out_string, "Negative ", start_i);
-        num *= -1;
+        num_u = num * -1;
     }
+    else
+        num_u = num;
 
     const char* ones_place[20] = { "", "One", "Two", "Three", "Four",
                                    "Five", "Six", "Seven", "Eight",
@@ -310,12 +333,12 @@ void get_num_in_words(int num, char* out_string)
     const char hundred[]       = " Hundred";
     const char space[]         = " ";
     int places_counter         = 0;
-    int remainder100, remainder10, num100, num10, quot;
+    unsigned remainder100, remainder10, num100, num10, quot;
 
-    while (num > 0)
+    while (num_u > 0)
     {
-        quot = num / divisors[places_counter];
-        num %= divisors[places_counter];
+        quot = num_u / divisors[places_counter];
+        num_u %= divisors[places_counter];
         if (quot)
         {
             remainder100 = quot % 100;
@@ -335,7 +358,7 @@ void get_num_in_words(int num, char* out_string)
                 {
                     remainder10 = remainder100 % 10;
                     num10       = (remainder100 - remainder10) / 10;
-                    start_i = add_str(out_string, twos_place[num10], start_i);
+                    start_i     = add_str(out_string, twos_place[num10], start_i);
                     if (remainder10)
                     {
                         start_i = add_str(out_string, space, start_i);
@@ -344,7 +367,7 @@ void get_num_in_words(int num, char* out_string)
                 }
             }
             start_i = add_str(out_string, places[places_counter], start_i);
-            if (num)
+            if (num_u)
                 start_i = add_str(out_string, space, start_i);
         }
         ++places_counter;
@@ -385,7 +408,7 @@ void expand (const char s1[], char s2[])
 //
 void itoa2 (int n, char s[])
 {
-    int i, sign;
+    int i;
     unsigned n_u;
     n_u = (n < 0) ? -1 * n : n;
     i = 0;
@@ -468,5 +491,87 @@ unsigned xlcol2num(char s[])
             return num;
         num = 26 * num + c;
     }
+}
+//
+// vectors
+float  dot(const float vec1[], const float vec2[], unsigned len)
+{
+    int i;
+    float dot_sum = 0.0;
+    for (i = 0; i < len; ++i)
+        dot_sum += vec1[i] * vec2[i];
+    return dot_sum;
+}
+float norm(const float vec1[], unsigned len)
+{
+    return sqrt(dot(vec1, vec1, len));
+}
+void cross(const float vec1[3], const float vec2[3], float out_vec[3])
+{
+    out_vec[0] = vec1[1] * vec2[2] - vec1[2] * vec2[1];
+    out_vec[1] = vec1[2] * vec2[0] - vec1[0] * vec2[2]; 
+    out_vec[2] = vec1[0] * vec2[1] - vec1[1] * vec2[0]; 
+}
+void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsigned len, float fac1, float fac2)
+{
+    int i;
+    for (i = 0; i < len; ++i)
+        rel_vec[i] = fac1 * vec1[i] + fac2 * vec2[i];
+}
+//
+short check_tolerance(float f)
+{
+    if (f > -0.00001 && f < 0.00001)
+        return 1;
+    return 0;
+}
+void print_vector(float v[], unsigned len)
+{
+    unsigned i;
+    for (i = 0; i < len; ++i)
+        printf ("%3.18f ", v[i]);
+    printf("\n");
+        
+
+}
+// circumscribed circle
+float circumscribed_circle(const float x[3], const float y[3],const float z[3], float ctr[3])
+{
+    float a[3], b[3];
+    bool_vector(x, y, a, 3, -1.0, 1.0);
+    bool_vector(x, z, b, 3, -1.0, 1.0);
+    float anorm = norm(a, 3);
+    float bnorm = norm(b, 3);
+    if (check_tolerance(anorm) || check_tolerance(bnorm))
+    {
+        printf("ERROR : Atleast two of the points are coincident.\n");
+        return 0.0;
+    }
+    bool_vector(a, a, a, 3, 1.0/anorm, 0.0); // unit vector a
+    bool_vector(b, b, b, 3, 1.0/bnorm, 0.0); // unit vector b
+    // checks
+    if (check_tolerance(a[0] - b[0]) && check_tolerance(a[1] - b[1]) && check_tolerance(a[2] - b[2]))
+    {
+        printf("ERROR : Points are collinear.\n");
+        return 0.0;
+    }
+    // end checks
+    float u[3], v[3], w[3], l[3], m[3], rad[3], q;
+    cross(a, b, u);
+    cross(a, u, v);
+    cross(b, u, w);
+    print_vector(u, 3);
+    print_vector(v, 3);
+    print_vector(w, 3);
+    bool_vector(x, a, l, 3, 1.0, 0.5);
+    bool_vector(x, b, m, 3, 1.0, 0.5);
+    print_vector(l, 3);
+    print_vector(m, 3);
+    q = (v[1] * (m[0] - l[0]) - v[0] * (m[1] - l[1]))/(v[0] * w[1] - v[1] * w[0]);
+    float q2 = (v[2] * (m[0] - l[0]) - v[0] * (m[2] - l[2]))/(v[0] * w[2] - v[2] * w[0]);
+    printf("%3.18f , %3.18f\n", q, q2);
+    bool_vector(m, w, ctr, 3, 1.0, q);
+    bool_vector(x, ctr, rad, 3, -1.0, 1.0);
+    return norm(rad, 3);
 }
 //
