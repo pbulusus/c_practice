@@ -38,7 +38,7 @@ float norm(const float vec1[], unsigned len);
 void cross(const float vec1[3], const float vec2[3], float out_vec[3]);
 short check_tolerance(float f);
 void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsigned len, float fac1, float fac2);
-float circumscribed_circle(const float x[3], const float y[3],const float z[3], float ctr[3]);
+float tria_to_circ(const float x[3], const float y[3],const float z[3], float ctr[3], char circle_type);
 // End Declarations
 
 // main
@@ -90,8 +90,8 @@ int main(int argc, char* argv[])
     float y[3] = {0.0, 1.0, 0.0};
     float z[3] = {-1.0, 0.0, 0.0};
     float ctr[3], radius;
-    radius = circumscribed_circle(x, y, z, ctr);
-    printf("Radius is : %3.18f at co-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
+    radius = tria_to_circ(x, y, z, ctr, 'c');
+    printf("Radius is : %3.18f\nCo-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
     //
    end_main:
         printf("----------------------\n");
@@ -521,7 +521,7 @@ void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsig
 //
 short check_tolerance(float f)
 {
-    if (f > -0.00001 && f < 0.00001)
+    if (f > -1E-6 && f < 1E-6)
         return 1;
     return 0;
 }
@@ -531,47 +531,56 @@ void print_vector(float v[], unsigned len)
     for (i = 0; i < len; ++i)
         printf ("%3.18f ", v[i]);
     printf("\n");
-        
-
+}
+float get_q(const float v[3], const float w[3], const float l[3])
+{
+    float tmp = (v[0] * w[1] - v[1] * w[0]);
+    if (check_tolerance(tmp))
+        return (v[2] * l[0] - v[0] * l[2]) / (v[0] * w[2] - v[2] * w[0]);
+    else
+        return (v[1] * l[0] - v[0] * l[1]) / tmp;
 }
 // circumscribed circle
-float circumscribed_circle(const float x[3], const float y[3],const float z[3], float ctr[3])
+float tria_to_circ(const float x[3], const float y[3],const float z[3], float ctr[3], char circle_type)
 {
-    float a[3], b[3];
+    float a[3], b[3], u[3];
     bool_vector(x, y, a, 3, -1.0, 1.0);
     bool_vector(x, z, b, 3, -1.0, 1.0);
-    float anorm = norm(a, 3);
-    float bnorm = norm(b, 3);
-    if (check_tolerance(anorm) || check_tolerance(bnorm))
+    cross(a, b, u);
+    // check
+    if (check_tolerance(norm(u, 3)))
     {
-        printf("ERROR : Atleast two of the points are coincident.\n");
-        return 0.0;
-    }
-    bool_vector(a, a, a, 3, 1.0/anorm, 0.0); // unit vector a
-    bool_vector(b, b, b, 3, 1.0/bnorm, 0.0); // unit vector b
-    // checks
-    if (check_tolerance(a[0] - b[0]) && check_tolerance(a[1] - b[1]) && check_tolerance(a[2] - b[2]))
-    {
-        printf("ERROR : Points are collinear.\n");
+        printf("ERROR : Points are collinear or coincident.\n");
         return 0.0;
     }
     // end checks
-    float u[3], v[3], w[3], l[3], m[3], rad[3], q;
-    cross(a, b, u);
-    cross(a, u, v);
-    cross(b, u, w);
-    print_vector(u, 3);
-    print_vector(v, 3);
-    print_vector(w, 3);
-    bool_vector(x, a, l, 3, 1.0, 0.5);
-    bool_vector(x, b, m, 3, 1.0, 0.5);
-    print_vector(l, 3);
-    print_vector(m, 3);
-    q = (v[1] * (m[0] - l[0]) - v[0] * (m[1] - l[1]))/(v[0] * w[1] - v[1] * w[0]);
-    float q2 = (v[2] * (m[0] - l[0]) - v[0] * (m[2] - l[2]))/(v[0] * w[2] - v[2] * w[0]);
-    printf("%3.18f , %3.18f\n", q, q2);
-    bool_vector(m, w, ctr, 3, 1.0, q);
-    bool_vector(x, ctr, rad, 3, -1.0, 1.0);
-    return norm(rad, 3);
+    float c[3], v[3], w[3], q, radius = 0.0;
+    bool_vector(y, z, c, 3, -1.0, 1.0);
+
+    if (circle_type == 'c') // circumsscribed
+    {
+        cross(a, u, v);
+        cross(b, u, w);
+        q = get_q(v, w, c);
+        bool_vector(b, w, ctr, 3, 0.5, 0.5 * q);
+        radius = norm(ctr, 3);
+        bool_vector(ctr, x, ctr, 3, 1.0, 1.0);
+    }
+    else if (circle_type == 'i') // inscribed
+    {
+        float anormc = 1.0 / norm(a, 3);
+        bool_vector(a, b, v, 3,  anormc, 1.0 / norm(b, 3));
+        bool_vector(a, c, v, 3, -anormc, 1.0 / norm(c, 3));
+        q = get_q(v, w, a);
+        bool_vector(w, a, ctr, 3, q, -q * dot(w, a, 3) * anormc * anormc);
+        radius = norm(ctr, 3);
+        bool_vector(y, w, ctr, 3, 1.0, 1.0);
+    }
+    else
+    {
+        printf("ERROR : Unknown circle type argument %c to fucntion tria_to_circ.\n", circle_type);
+        return 0.0;
+    }
+    return radius;
 }
 //
