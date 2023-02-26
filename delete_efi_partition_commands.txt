@@ -1,9 +1,0 @@
-bcdedit /enum firmware
-
-bcdedit /delete {d8e7f90f-3693-11ed-9800-806e6f6e6963}
-
-timedatectl set-local-rtc 1 --adjust-system-clock
-
-sudo dnf install grub-customizer
-
-sudo nano /ect/default/grub
