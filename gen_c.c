@@ -570,7 +570,7 @@ float tria_to_circ(const float x[3], const float y[3],const float z[3], float ct
     {
         float anormc = 1.0 / norm(a, 3);
         bool_vector(a, b, v, 3,  anormc, 1.0 / norm(b, 3));
-        bool_vector(a, c, v, 3, -anormc, 1.0 / norm(c, 3));
+        bool_vector(a, c, w, 3, -anormc, 1.0 / norm(c, 3));
         q = get_q(v, w, a);
         bool_vector(w, a, ctr, 3, q, -q * dot(w, a, 3) * anormc * anormc);
         radius = norm(ctr, 3);
@@ -584,3 +584,70 @@ float tria_to_circ(const float x[3], const float y[3],const float z[3], float ct
     return radius;
 }
 //
+///////////code from chatgpt//////////
+#include <stdio.h>
+#include <math.h>
+
+struct Vector3D {
+    double x, y, z;
+};
+
+struct Circle3D {
+    struct Vector3D center;
+    double radius;
+};
+
+struct Vector3D subtract(struct Vector3D v1, struct Vector3D v2) {
+    struct Vector3D result;
+    result.x = v1.x - v2.x;
+    result.y = v1.y - v2.y;
+    result.z = v1.z - v2.z;
+    return result;
+}
+
+struct Vector3D crossProduct(struct Vector3D v1, struct Vector3D v2) {
+    struct Vector3D result;
+    result.x = v1.y*v2.z - v1.z*v2.y;
+    result.y = v1.z*v2.x - v1.x*v2.z;
+    result.z = v1.x*v2.y - v1.y*v2.x;
+    return result;
+}
+
+double dotProduct(struct Vector3D v1, struct Vector3D v2) {
+    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
+}
+
+double magnitude(struct Vector3D v) {
+    return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
+}
+
+struct Circle3D circumscribedCircle(struct Vector3D p1, struct Vector3D p2, struct Vector3D p3) {
+    struct Vector3D v1 = subtract(p2, p1);
+    struct Vector3D v2 = subtract(p3, p1);
+    struct Vector3D normal = crossProduct(v1, v2);
+    double d = -dotProduct(normal, p1);
+    struct Vector3D center;
+    center.x = -(normal.y*v1.z - normal.z*v1.y + normal.y*v2.z - normal.z*v2.y + normal.z*p1.y - normal.y*p1.z)/
+                (2*(v1.x*v2.y - v1.y*v2.x));
+    center.y = (normal.x*v1.z - normal.z*v1.x + normal.z*v2.x - normal.x*v2.z + normal.z*p1.x - normal.x*p1.z)/
+               (2*(v1.x*v2.y - v1.y*v2.x));
+    center.z = -(normal.x*v1.y - normal.y*v1.x + normal.x*v2.y - normal.y*v2.x + normal.y*p1.x - normal.x*p1.y)/
+                (2*(v1.x*v2.y - v1.y*v2.x));
+    double radius = magnitude(subtract(center, p1));
+    struct Circle3D circle = { center, radius };
+    return circle;
+}
+
+int main() {
+    struct Vector3D p1 = { 0, 0, 0 };
+    struct Vector3D p2 = { 1, 0, 0 };
+    struct Vector3D p3 = { 0, 1, 0 };
+
+    struct Circle3D circle = circumscribedCircle(p1, p2, p3);
+
+    printf("Center: (%f, %f, %f)\n", circle.center.x, circle.center.y, circle.center.z);
+    printf("Radius: %f\n", circle.radius);
+
+    return 0;
+}
+///////////end code from chatGPT/////////
