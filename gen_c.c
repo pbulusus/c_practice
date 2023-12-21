@@ -8,8 +8,11 @@ Author : Praveen Bulusu
 #include <stdio.h>
 #include <ctype.h>
 #include <limits.h>
+//
+#include "get_int.c"
 
 typedef enum {false, true} bool;
+///
 
 // Declarations
 int htoi(char s[]);
@@ -39,8 +42,15 @@ void cross(const float vec1[3], const float vec2[3], float out_vec[3]);
 short check_tolerance(float f);
 void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsigned len, float fac1, float fac2);
 float tria_to_circ(const float x[3], const float y[3],const float z[3], float ctr[3], char circle_type);
+int strrindex(char string[], char pattern[]);
+void reverse_rec(char s[], int left, int right);
 // End Declarations
 
+typedef struct a
+{
+    double x;
+    struct a* y;
+}A;
 // main
 int main(int argc, char* argv[])
 {
@@ -86,15 +96,24 @@ int main(int argc, char* argv[])
     // float x[3] = {-100.2, 200.3, 600.5};
     // float y[3] = {500.7, -800.9, 500.4};
     // float z[3] = {700.9, 400.5, -300.4};
-    float x[3] = {1.0, 0.0, 0.0};
-    float y[3] = {0.0, 1.0, 0.0};
-    float z[3] = {-1.0, 0.0, 0.0};
-    float ctr[3], radius;
-    radius = tria_to_circ(x, y, z, ctr, 'c');
-    printf("Radius is : %3.18f\nCo-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
+    // float x[3] = {1.0, 0.0, 0.0};
+    // float y[3] = {0.0, 1.0, 0.0};
+    // float z[3] = {-1.0, 0.0, 0.0};
+    // float ctr[3], radius;
+    // radius = tria_to_circ(x, y, z, ctr, 'c');
+    // printf("Radius is : %3.18f\nCo-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
     //
-   end_main:
-        printf("----------------------\n");
+    char s[] = "abcdefghijbvef";
+    char p[] = "";
+    int ind = strrindex(s, p);
+    printf("Index : %d\n", ind);
+    //
+    // char s_rec[] = "abcd";
+    // printf("%s\n", s_rec); 
+    // reverse_rec(s_rec, 0, strlen(s_rec)-1);
+    // printf("%s\n", s_rec); 
+    end_main:
+        printf("\n----------------------\n");
         end = clock();
         double cpu_time_seconds = ((double) (end - start)) / CLOCKS_PER_SEC;
         printf("%s %3.18f %s\n", "Finished processing in :", cpu_time_seconds, "Seconds");
@@ -558,7 +577,7 @@ float tria_to_circ(const float x[3], const float y[3],const float z[3], float ct
     bool_vector(y, z, c, 3, -1.0, 1.0);
 
     if (circle_type == 'c') // circumsscribed
-    {
+    { 
         cross(a, u, v);
         cross(b, u, w);
         q = get_q(v, w, c);
@@ -584,70 +603,33 @@ float tria_to_circ(const float x[3], const float y[3],const float z[3], float ct
     return radius;
 }
 //
-///////////code from chatgpt//////////
-#include <stdio.h>
-#include <math.h>
-
-struct Vector3D {
-    double x, y, z;
-};
-
-struct Circle3D {
-    struct Vector3D center;
-    double radius;
-};
-
-struct Vector3D subtract(struct Vector3D v1, struct Vector3D v2) {
-    struct Vector3D result;
-    result.x = v1.x - v2.x;
-    result.y = v1.y - v2.y;
-    result.z = v1.z - v2.z;
-    return result;
+// K & R exercise 4-1
+int strrindex(char string[], char pattern[])
+{
+    int index = -1;
+    int si = 0;
+    int pi = 0;
+    while (1)
+    {
+        for ( ; pattern[pi] != '\0' && string[si] != '\0' && (pattern[pi] == string[si]); ++pi, ++si)
+            ;
+        if (pattern[pi] == '\0')
+            index = si - pi;
+        if (string[si] == '\0')
+            return index;
+        si -= --pi;
+        pi = 0;
+    }
+    // return index;
 }
-
-struct Vector3D crossProduct(struct Vector3D v1, struct Vector3D v2) {
-    struct Vector3D result;
-    result.x = v1.y*v2.z - v1.z*v2.y;
-    result.y = v1.z*v2.x - v1.x*v2.z;
-    result.z = v1.x*v2.y - v1.y*v2.x;
-    return result;
+void reverse_rec(char s[], int left, int right)
+{
+    if (left < right)
+    {
+        char tmp = s[right];
+        s[right] = s[left];
+        s[left]  = tmp;
+        reverse_rec(s, ++left, --right);
+    }
 }
-
-double dotProduct(struct Vector3D v1, struct Vector3D v2) {
-    return v1.x*v2.x + v1.y*v2.y + v1.z*v2.z;
-}
-
-double magnitude(struct Vector3D v) {
-    return sqrt(v.x*v.x + v.y*v.y + v.z*v.z);
-}
-
-struct Circle3D circumscribedCircle(struct Vector3D p1, struct Vector3D p2, struct Vector3D p3) {
-    struct Vector3D v1 = subtract(p2, p1);
-    struct Vector3D v2 = subtract(p3, p1);
-    struct Vector3D normal = crossProduct(v1, v2);
-    double d = -dotProduct(normal, p1);
-    struct Vector3D center;
-    center.x = -(normal.y*v1.z - normal.z*v1.y + normal.y*v2.z - normal.z*v2.y + normal.z*p1.y - normal.y*p1.z)/
-                (2*(v1.x*v2.y - v1.y*v2.x));
-    center.y = (normal.x*v1.z - normal.z*v1.x + normal.z*v2.x - normal.x*v2.z + normal.z*p1.x - normal.x*p1.z)/
-               (2*(v1.x*v2.y - v1.y*v2.x));
-    center.z = -(normal.x*v1.y - normal.y*v1.x + normal.x*v2.y - normal.y*v2.x + normal.y*p1.x - normal.x*p1.y)/
-                (2*(v1.x*v2.y - v1.y*v2.x));
-    double radius = magnitude(subtract(center, p1));
-    struct Circle3D circle = { center, radius };
-    return circle;
-}
-
-int main() {
-    struct Vector3D p1 = { 0, 0, 0 };
-    struct Vector3D p2 = { 1, 0, 0 };
-    struct Vector3D p3 = { 0, 1, 0 };
-
-    struct Circle3D circle = circumscribedCircle(p1, p2, p3);
-
-    printf("Center: (%f, %f, %f)\n", circle.center.x, circle.center.y, circle.center.z);
-    printf("Radius: %f\n", circle.radius);
-
-    return 0;
-}
-///////////end code from chatGPT/////////
+///
