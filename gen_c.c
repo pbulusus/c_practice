@@ -9,7 +9,6 @@ Author : Praveen Bulusu
 #include <ctype.h>
 #include <limits.h>
 //
-#include "get_int.c"
 
 typedef enum {false, true} bool;
 ///
