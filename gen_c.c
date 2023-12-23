@@ -194,13 +194,13 @@ int bitcount2(void* x)
 //
 void printbits(void* x)
 {
-    unsigned mask = ~(0u >> 1);
+    unsigned mask = ~(~0u >> 1);
     unsigned x_u = * (unsigned* ) x;
     char bitchar[2] = "01";
     do
         putchar(bitchar[(x_u & mask) != 0u]);
-    while (mask >> 1);
-    putchar('\n');   
+    while (mask >>= 1);
+    putchar('\n'); 
 }
 //
 void squeeze2(char s1[], const char s2[])
