@@ -1,4 +1,8 @@
 
+/*
+Wrote it based on the idea from the computerphile video on linked list
+using pointer to pointer method
+*/
 
 #include <stdio.h>
 #include <ctype.h>
