@@ -1,7 +1,7 @@
 
 /*
 Author : Praveen Bulusu
-Wrote it based on the idea from the computerphile video on linked list
+Wrote it based on the idea from the computerphile video on linked lists
 using pointer to pointer method
 */
 
@@ -67,6 +67,24 @@ void print_tree(tnode* root)
     printf("...END_Printing_List.\n");
 }
 
+void delete_node(tnode** ptr_root, char* word)
+{
+    tnode* temp;
+    while(*ptr_root != NULL)
+    {
+        if (!strcmp(word, (*ptr_root)->word))
+        {
+            temp = *ptr_root;
+            *ptr_root = (*ptr_root)->next;
+            free(temp->word);
+            free(temp);
+            return;
+        }
+        ptr_root = &(*ptr_root)->next;
+    }
+    printf("Item to be deleted (%s) NOT FOUND. Or List is empty.\n", word);
+}
+
 int main()
 {
     tnode* root = NULL;
@@ -88,6 +106,15 @@ int main()
         if (!isalpha(*word))
             break;
         add_node(&root, word);
+    }
+    print_tree(root);
+    while (1)
+    {
+        printf("Input Item to be deleted: ");
+        scanf("%s", word);
+        if (!isalpha(*word))
+            break;
+        delete_node(&root, word);
     }
     print_tree(root);
     return 0;
