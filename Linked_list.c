@@ -62,6 +62,20 @@ void print_tree(tnode* root)
     printf("...END_Printing_List.\n");
 }
 
+void free_tree(tnode** ptr_root)
+{
+    tnode** first;
+    tnode** temp;
+    first = temp = ptr_root;
+    while(*(ptr_root = temp) != NULL)
+    {
+        temp = &(*ptr_root)->next;
+        free((*ptr_root)->word);
+        free((*ptr_root));
+    }
+    *first = NULL;
+}
+
 int main()
 {
     tnode* root = NULL;
@@ -85,6 +99,7 @@ int main()
         add_node(&root, word);
     }
     print_tree(root);
-
+    free_tree(&root);
+    print_tree(root);
     return 0;
 }
