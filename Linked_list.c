@@ -1,5 +1,6 @@
 
 /*
+Author : Praveen Bulusu
 Wrote it based on the idea from the computerphile video on linked list
 using pointer to pointer method
 */
