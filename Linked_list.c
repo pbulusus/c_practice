@@ -22,7 +22,7 @@ typedef struct _tnode
 tnode* create_node(char* word)
 {
     tnode* node = (tnode*)malloc(sizeof(tnode));
-    node->word = (char*)malloc(sizeof(char) * (strlen(word) - 1));
+    node->word = (char*)malloc(sizeof(char) * (strlen(word) + 1));
     strcpy(node->word, word);
     node->next  = NULL;
     return node;
