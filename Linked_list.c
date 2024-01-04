@@ -30,30 +30,22 @@ tnode* create_node(char* word)
 
 void add_node(tnode** ptr_root, char word[])
 {
-    short cond;
+    short cond = 1;
     tnode* next;
-    while (1)
-    {        
-        if (*ptr_root == NULL)
-        {
-            *ptr_root = create_node(word);
-            return;
-        }
-        cond = strcmp(word, (*ptr_root)->word);
-        if (cond == 0)
-        {
-            printf("INFO : Item %s already exists.\n", word);
-            return;
-        }
-        else if (cond < 0)
-        {
-            next = *ptr_root;
-            *ptr_root = create_node(word);
-            (*ptr_root)->next = next;
-            return;
-        }
+
+    while ((*ptr_root != NULL) && ((cond = strcmp(word, (*ptr_root)->word)) > 0))       
         ptr_root = &(*ptr_root)->next;
+
+    if (cond == 0)
+    {
+        printf("INFO : Item %s already exists.\n", word);
+        return;
     }
+
+    next = *ptr_root;
+    *ptr_root = create_node(word);
+    (*ptr_root)->next = next;
+    return;
 }
 
 void print_tree(tnode* root)
