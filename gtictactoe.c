@@ -94,7 +94,6 @@ static void activate (GtkApplication* app, gpointer user_data)
     window = GTK_WINDOW(gtk_application_window_new (app));
     gtk_window_set_title (window, "Tic Tac Toe");
 
-    /* Here we construct the container that is going pack our buttons */
     grid = GTK_GRID(gtk_grid_new ());
     gtk_widget_set_hexpand(GTK_WIDGET(grid), TRUE);
     gtk_widget_set_vexpand(GTK_WIDGET(grid), TRUE);
@@ -122,9 +121,6 @@ static void activate (GtkApplication* app, gpointer user_data)
     g_signal_connect_swapped (button, "clicked", G_CALLBACK (reset), grid);
     gtk_grid_attach (GTK_GRID (grid), button, 3, 0, 1, 3);
 
-    /* Place the first button in the grid cell (0, 0), and make it fill
-    * just 1 cell horizontally and vertically (ie no spanning)
-    */
     gtk_window_present (window);
 }
 
@@ -141,43 +137,3 @@ int main (int argc, char **argv)
     g_object_unref (app);
     return status;
 }
-
-// void close_alert(GtkAlertDialog* dialog, GAsyncResult *res, gpointer user_data)
-// {
-//     GError *err = NULL;
-//     int button = gtk_alert_dialog_choose_finish (dialog, res, &err);
-//     gtk_window_destroy((GtkWindow*)dialog);
-// }
-
-// void quick_message (GtkWindow* parent, char* message)
-// {
-//     GtkAlertDialog* dialog = gtk_alert_dialog_new (message);
-//     const char* buttons[] = {"Cancel", "Proceed"};
-//     gtk_alert_dialog_set_detail (dialog, "Contents of the message");
-//     gtk_alert_dialog_set_buttons (dialog, buttons);
-//     gtk_alert_dialog_set_cancel_button (dialog, 0);   // Cancel is at index 0
-//     gtk_alert_dialog_set_default_button (dialog, 1);
-
-//     gtk_alert_dialog_choose  (dialog, parent, NULL, (GAsyncReadyCallback)close_alert, NULL);
-// }
-
-    // const char* markup = "<span size=\"30.0pt\">-</span>";
-    // GtkWidget*  btn_label;
-    
-
-    // int i, j;
-    // for (i = 0; i < 3; ++i)
-    // {
-    //     for (j = 0; j < 3; ++j)
-    //     {
-    //         button = gtk_button_new_with_label ("-");
-    //         gtk_widget_set_hexpand(GTK_WIDGET(button), TRUE);
-    //         gtk_widget_set_vexpand(GTK_WIDGET(button), TRUE);
-    //         btn_label = gtk_label_new(NULL);
-    //         gtk_label_set_markup ((GtkLabel*)btn_label, markup);
-    //         gtk_button_set_child(GTK_BUTTON(button), GTK_WIDGET(btn_label));
-    //         vals[i][j] = -1;
-    //         g_signal_connect (button, "clicked", G_CALLBACK (mark_tile), 3 * i + j);
-    //         gtk_grid_attach (GTK_GRID (grid), button, i, j, 1, 1);
-    //     }
-    // }
