@@ -36,7 +36,6 @@ static void mark_tile (GtkWidget* widget, gpointer plocation)
 {
     
     GtkButton* button = GTK_BUTTON(widget);
-
     
     if (gtk_button_get_label(button)[0] != '-')
         return;
@@ -46,6 +45,7 @@ static void mark_tile (GtkWidget* widget, gpointer plocation)
     char current = mark[0];
 
     gtk_button_set_label(button, mark);
+    
     if (mark[0] == 'X')
     {
         mark[0] = 'O';
@@ -129,7 +129,7 @@ int main (int argc, char **argv)
     // setvbuf (stdout, NULL, _IONBF, 0);
     GtkApplication* app;
     int status;
-
+    
     app = gtk_application_new ("org.gtk.example", 0);
     g_signal_connect (app, "activate", G_CALLBACK (activate), NULL);
 
