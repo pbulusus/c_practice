@@ -43,6 +43,7 @@ void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsig
 float tria_to_circ(const float x[3], const float y[3],const float z[3], float ctr[3], char circle_type);
 int strrindex(char string[], char pattern[]);
 void reverse_rec(char s[], int left, int right);
+void fizz_buzz();
 // End Declarations
 
 typedef struct a
@@ -67,13 +68,15 @@ int main(int argc, char* argv[])
     char d[] = "a*b*c\\\\*\\*\\*d\\?e\\f?";
     printf("%d\n", search_str_wld_crds(c,d));
     //
-    char num_in_words[125];
-    int num = UINT_MIN;
-    get_num_in_words(num, num_in_words);
-    int num = 1751776789;
-    get_num_in_words(num, num_in_words);
-    printf("--%s--", num_in_words);
     */
+    char num_in_words[125];
+    int numbers[10] = {INT_MIN, 1001776779, 20000, 1000, 200, 123456, 100001, 1000005, 1000100001, 789000};
+    int i;
+    for (i = 0; i < 10; ++i)
+    {
+        get_num_in_words(numbers[i], num_in_words);
+        printf("%d:--%s--\n",numbers[i], num_in_words);
+    }
 //    //
 //    char s1[1000];
 //    char s2[1000];
@@ -102,17 +105,18 @@ int main(int argc, char* argv[])
     // radius = tria_to_circ(x, y, z, ctr, 'c');
     // printf("Radius is : %3.18f\nCo-ordinates %3.18f, %3.18f, %3.18f \n", radius, ctr[0], ctr[1], ctr[2]);
     //
-    char s[] = "abcdefghijbvef";
-    char p[] = "";
-    int ind = strrindex(s, p);
-    printf("Index : %d\n", ind);
+    // char s[] = "abcdefghijbvef";
+    // char p[] = "";
+    // int ind = strrindex(s, p);
+    // printf("Index : %d\n", ind);
     //
     // char s_rec[] = "abcd";
     // printf("%s\n", s_rec); 
     // reverse_rec(s_rec, 0, strlen(s_rec)-1);
     // printf("%s\n", s_rec); 
+    // fizz_buzz();
     end_main:
-        printf("\n----------------------\n");
+        printf("----------------------\n");
         end = clock();
         double cpu_time_seconds = ((double) (end - start)) / CLOCKS_PER_SEC;
         printf("%s %3.18f %s\n", "Finished processing in :", cpu_time_seconds, "Seconds");
@@ -157,6 +161,14 @@ bool contains(const char str[], char c)
         if (str[i] == c)
             return true;
     return false;
+}
+//
+bool contains3(const char str[], char c)
+{
+    bool cond = false;
+    while(*str && !(cond = (*(str++) == c)))
+        ;
+    return cond;
 }
 //
 int any (char s1[], const char s2[])
@@ -350,45 +362,44 @@ void get_num_in_words(int num, char* out_string)
     int divisors[4]            = {1000000000, 1000000, 1000, 1};
     const char hundred[]       = " Hundred";
     const char space[]         = " ";
-    int places_counter         = 0;
+    int places_counter;
     unsigned remainder100, remainder10, num100, num10, quot;
 
-    while (num_u > 0)
+    for (places_counter = 0; num_u != 0; ++places_counter)
     {
         quot = num_u / divisors[places_counter];
         num_u %= divisors[places_counter];
-        if (quot)
+        if (!quot)
+            continue;
+
+        remainder100 = quot % 100;
+        num100       = quot / 100;
+        if (num100)
         {
-            remainder100 = quot % 100;
-            num100       = (quot - remainder100) / 100;
-            if (num100)
-            {
-                start_i = add_str(out_string, ones_place[num100], start_i);
-                start_i = add_str(out_string, hundred, start_i);
-                if (remainder100)
-                    start_i = add_str(out_string, space, start_i);
-            }
+            start_i = add_str(out_string, ones_place[num100], start_i);
+            start_i = add_str(out_string, hundred, start_i);
             if (remainder100)
-            {
-                if (remainder100 < 20)
-                    start_i = add_str(out_string, ones_place[remainder100], start_i);
-                else
-                {
-                    remainder10 = remainder100 % 10;
-                    num10       = (remainder100 - remainder10) / 10;
-                    start_i     = add_str(out_string, twos_place[num10], start_i);
-                    if (remainder10)
-                    {
-                        start_i = add_str(out_string, space, start_i);
-                        start_i = add_str(out_string, ones_place[remainder10], start_i);
-                    }
-                }
-            }
-            start_i = add_str(out_string, places[places_counter], start_i);
-            if (num_u)
                 start_i = add_str(out_string, space, start_i);
         }
-        ++places_counter;
+        if (remainder100)
+        {
+            if (remainder100 < 20)
+                start_i = add_str(out_string, ones_place[remainder100], start_i);
+            else
+            {
+                remainder10 = remainder100 % 10;
+                num10       = remainder100 / 10;;
+                start_i     = add_str(out_string, twos_place[num10], start_i);
+                if (remainder10)
+                {
+                    start_i = add_str(out_string, space, start_i);
+                    start_i = add_str(out_string, ones_place[remainder10], start_i);
+                }
+            }
+        }
+        start_i = add_str(out_string, places[places_counter], start_i);
+        if (num_u)
+            start_i = add_str(out_string, space, start_i);
     }
 }
 //////////////////////////End Get Num in Words ////////////////////////////////////////////
@@ -632,3 +643,21 @@ void reverse_rec(char s[], int left, int right)
     }
 }
 ///
+void fizz_buzz()
+{
+    int i;
+    for (i = 0; i < 101; ++i)
+    {
+        int div3 = i % 3;
+        int div5 = i % 5;
+
+        if (!div3 && !div5)
+            printf("FIZZBUZZ\n");
+        else if (!div3)
+            printf("FIZZ\n");
+        else if (!div5)
+            printf("buzz\n");
+        else
+            printf("%d\n",i);
+    }
+}
