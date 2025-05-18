@@ -43,6 +43,7 @@ void  bool_vector(const float vec1[], const float vec2[], float rel_vec[], unsig
 float tria_to_circ(const float x[3], const float y[3],const float z[3], float ctr[3], char circle_type);
 int strrindex(char string[], char pattern[]);
 void reverse_rec(char s[], int left, int right);
+int bin2dec(char* bin);
 void fizz_buzz();
 // End Declarations
 
@@ -69,14 +70,28 @@ int main(int argc, char* argv[])
     printf("%d\n", search_str_wld_crds(c,d));
     //
     */
-    char num_in_words[125];
-    int numbers[10] = {INT_MIN, 1001776779, 20000, 1000, 200, 123456, 100001, 1000005, 1000100001, 789000};
-    int i;
-    for (i = 0; i < 10; ++i)
+    // char num_in_words[125];
+    // int numbers[10] = {INT_MIN, 1001776779, 20000, 1000, 200, 123456, 100001, 1000005, 1000100001, 789779};
+    // int i;
+    // for (i = 0; i < 10; ++i)
+    // {
+    //     get_num_in_words(numbers[i], num_in_words);
+    //     printf("%d:|**%s**|\n",numbers[i], num_in_words);
+    // }
+    printf("%lu %lu %lu %lu\n", sizeof(unsigned long), sizeof(long int), sizeof(long long), sizeof(int));
+    char input[32] = " "; 
+    while (1)
     {
-        get_num_in_words(numbers[i], num_in_words);
-        printf("%d:--%s--\n",numbers[i], num_in_words);
+        printf("Enter 32 bit Binary : ");
+        scanf("%s", input);
+        if (*input == 'e') 
+        {
+            printf("Exiting.....\n");
+            break;
+        }
+        printf("\nNumber : %d\n", bin2dec(input));
     }
+
 //    //
 //    char s1[1000];
 //    char s2[1000];
@@ -326,11 +341,11 @@ int add_str(char* str, const char* add, int start_i)
 ///////////////////////////////////////////////////////////////////////////////////////////
 ///////////////////////////// Get Num in Words ////////////////////////////////////////////
 /*
-    void get_num_in_words(int num, char* out_string) :
-    Gets number, num, in words into out_string.
-    eg. 1999 --> One Thousand Nine Hundred Ninety Nine.
-    Make sure char array out_string is allocated atleast 121 Bytes.
-    Works for Negative and Postitive Integers for upto type int limits.
+    // void get_num_in_words(int num, char* out_string) :
+    // Gets number, num, in words into out_string.
+    // eg. 1999 --> One Thousand Nine Hundred Ninety Nine.
+    // Make sure char array out_string is allocated atleast 121 Bytes.
+    // Works for Negative and Postitive Integers for upto type int limits.
 */
 void get_num_in_words(int num, char* out_string)
 {
@@ -369,6 +384,7 @@ void get_num_in_words(int num, char* out_string)
     {
         quot = num_u / divisors[places_counter];
         num_u %= divisors[places_counter];
+        
         if (!quot)
             continue;
 
@@ -660,4 +676,26 @@ void fizz_buzz()
         else
             printf("%d\n",i);
     }
+}
+
+int bin2dec(char* bin)
+{
+    /* assumes upto 32 bits
+       2's complement integer will be returned */
+    if  (bin == NULL) return 0;
+    int dec = 0;
+    int count = 0;
+    char c;
+    for (count = 0; count < 32 && (c = bin[count]) != '\0'; ++count)
+    {
+        dec <<= 1; 
+        if (c == '1')
+            dec += 1;
+        else if (c != '0')
+        {
+            printf("Error : Input character must be a '0' or '1'\n");
+            break;
+        }
+    }
+    return dec;
 }
